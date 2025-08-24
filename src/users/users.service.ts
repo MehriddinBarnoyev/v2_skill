@@ -6,7 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(dto: { email: string; username: string; password: string }) {
     return this.userModel.create({ ...dto, isDeleted: false });
@@ -32,6 +32,10 @@ export class UsersService {
     return this.userModel.findByIdAndUpdate(id, { ...dto, isDeleted: dto.isDeleted ?? false }, { new: true }).select('-password');
   }
 
+  async findManyByIds(ids: (string | Types.ObjectId)[]) {
+    return this.userModel.find({ _id: { $in: ids }, isDeleted: false }).select('username name profile_picture');
+  }
+
   async search(query: { skill?: string; username?: string; name?: string; education?: string }) {
     const conditions: any = { isDeleted: false };
     if (query.skill) {
@@ -47,9 +51,5 @@ export class UsersService {
       conditions.education = { $in: [new RegExp(query.education, 'i')] };
     }
     return this.userModel.find(conditions).select('-password');
-  }
-
-  async findManyByIds(ids: (string | Types.ObjectId)[]) {
-    return this.userModel.find({ _id: { $in: ids }, isDeleted: false }).select('username name profile_picture');
   }
 }

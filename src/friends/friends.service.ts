@@ -81,7 +81,7 @@ export class FriendsService {
     //         receiverId: receiver._id.toString(),
     //     });
 
-    //     await this.usersService.update(sender._id.toString(), {
+    //     await this.usersService.update(sender._id as string, {
     //         friends: [...(sender.friends || []), receiver._id.toString()],
     //     });
     //     return { message: 'Friend request accepted' };
