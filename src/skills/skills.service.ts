@@ -24,6 +24,10 @@ export class SkillsService {
     return this.skillModel.findByIdAndUpdate(id, dto, { new: true });
   }
 
+  async getUserSkills(userId: string) {
+    return this.skillModel.find({ user: userId });
+  }
+
   async delete(id: string, userId: string) {
     const skill = await this.skillModel.findById(id);
     if (!skill) throw new NotFoundException('Skill not found');

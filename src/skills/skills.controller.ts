@@ -57,4 +57,15 @@ export class SkillsController {
     remove(@Param('id') id: string, @GetUser() user: User) {
         return this.skillsService.delete(id, user.id.toString());
     }
+
+    @Get('user/:userId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all skills of a user by user ID' })
+    @ApiParam({ name: 'userId', description: 'User ID', type: String })
+    @ApiResponse({ status: 200, description: 'List of skills' })
+    @ApiResponse({ status: 404, description: 'User not found' })
+    getUserSkills(@Param('userId') userId: string) {
+        return this.skillsService.getUserSkills(userId);
+    }
 }

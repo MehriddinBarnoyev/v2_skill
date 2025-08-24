@@ -12,10 +12,10 @@ async function bootstrap() {
     .setTitle('Skill Exchange API')
     .setDescription('API documentation for the Skill Exchange backend MVP')
     .setVersion('1.0')
-    .addBearerAuth() // Enables JWT bearer auth in docs
+    .addBearerAuth() 
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // Swagger UI at /api
+  SwaggerModule.setup('api', app, document); 
 
   await app.listen(3000);
 }
