@@ -26,10 +26,20 @@ export class UsersService {
     return this.userModel.findOne({ username, isDeleted: false });
   }
 
-  async update(id: string | Types.ObjectId, dto: UpdateUserDto) {
+  async update(id: string | Types.ObjectId, dto: UpdateUserDto, profilePicture?: string, certificates: string[] = []) {
     const user = await this.userModel.findOne({ _id: id, isDeleted: false });
     if (!user) throw new NotFoundException('User not found or deleted');
-    return this.userModel.findByIdAndUpdate(id, { ...dto, isDeleted: dto.isDeleted ?? false }, { new: true }).select('-password');
+
+    const updateData: Partial<UpdateUserDto & { profile_picture?: string; certificates?: string[] }> = {};
+    if (dto.username !== undefined) updateData.username = dto.username;
+    if (dto.name !== undefined) updateData.name = dto.name;
+    if (dto.skills !== undefined) updateData.skills = dto.skills;
+    if (dto.education !== undefined) updateData.education = dto.education;
+    if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted;
+    if (profilePicture !== undefined) updateData.profile_picture = profilePicture;
+    if (certificates.length > 0) updateData.certificates = [...(user.certificates || []), ...certificates];
+
+    return this.userModel.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
   }
 
   async findManyByIds(ids: (string | Types.ObjectId)[]) {

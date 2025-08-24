@@ -4,68 +4,48 @@ import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
+
 @Schema({ timestamps: true })
 export class User extends Document {
-  @ApiProperty({ description: 'The email of the user', example: 'user@example.com' })
-  @Prop({ unique: true, required: true })
+  @ApiProperty({ description: 'Email of the user', example: 'user@example.com' })
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @ApiProperty({ description: 'The username of the user', example: 'user123' })
-  @Prop({ unique: true, required: true })
+  @ApiProperty({ description: 'Username of the user', example: 'user123' })
+  @Prop({ required: true, unique: true })
   username: string;
 
-  @ApiProperty({ description: 'The password of the user', example: 'password123' })
-  @Prop({ required: true })
+  @ApiProperty({ description: 'Password of the user', example: 'password123' })
+  @Prop({ required: true, select: false })
   password: string;
 
-  @ApiProperty({ description: 'The name of the user', example: 'John Doe' })
-  @Prop()
-  name?: string;
-
-  @ApiProperty({ description: 'The bio of the user', example: 'Software Developer' })
-  @Prop()
-  bio?: string;
-
-  @ApiProperty({ description: 'The profile picture of the user', example: 'https://example.com/profile.jpg' })
+  @ApiProperty({ description: 'Profile picture URL', example: 'http://localhost:3000/uploads/profile.jpg' })
   @Prop()
   profile_picture?: string;
 
-  @ApiProperty({ description: 'The age of the user', example: 30 })
-  @Prop()
-  age?: number;
+  @ApiProperty({ description: 'Array of certificate URLs', type: [String], example: ['http://localhost:3000/uploads/cert1.pdf', 'http://localhost:3000/uploads/cert2.pdf'] })
+  @Prop({ type: [String], default: [] })
+  certificates: string[];
 
-  @ApiProperty({ description: 'The location of the user', example: 'New York, USA' })
-  @Prop()
-  location?: string;
-
-  @ApiProperty({ description: 'The skills of the user', example: ['JavaScript', 'Python'] })
-  @Prop([String])
-  skills?: string[];
-
-  @ApiProperty({ description: 'The certificates of the user', example: ['AWS Certified Developer'] })
-  @Prop([String])
-  certificates?: string[];
-
-  @ApiProperty({ description: 'The experience of the user', example: ['Software Engineer at XYZ', 'Intern at ABC'] })
-  @Prop([String])
-  experience?: string[];
-
-  @ApiProperty({ description: 'The friends of the user', example: [] })
-  @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
+  @ApiProperty({ description: 'Array of friend IDs', type: [String], example: ['507f1f77bcf86cd799439011'] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   friends: Types.ObjectId[];
 
+  @ApiProperty({ description: 'Array of skills', type: [String], example: ['JavaScript', 'Python'] })
+  @Prop({ type: [String], default: [] })
+  skills: string[];
 
-  @ApiProperty({ description: 'The hobbies of the user', example: ['Reading', 'Traveling'] })
-  @Prop([String])
-  hobbies?: string[];
+  @ApiProperty({ description: 'Name of the user', example: 'John Doe' })
+  @Prop()
+  name?: string;
 
-  @ApiProperty({ description: 'The isDeleted status of the user', example: false })
+  @ApiProperty({ description: 'Education of the user', example: 'Computer Science' })
+  @Prop()
+  education?: string;
+
+  @ApiProperty({ description: 'Whether the user is deleted', example: false })
   @Prop({ default: false })
   isDeleted: boolean;
-
-  @ApiProperty({ description: 'The education of the user', example: ['BSc Computer Science'] })
-  @Prop([String])
-  education?: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
