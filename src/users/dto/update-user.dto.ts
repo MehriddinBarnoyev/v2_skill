@@ -14,7 +14,7 @@ export class UpdateUserDto {
 
   @ApiProperty({ description: 'Array of skills', type: [String], example: ['JavaScript', 'Python'], required: false })
   @IsOptional()
-  // @IsArray()
+  @IsArray()
   @IsString({ each: true })
   skills?: string[];
 
@@ -25,6 +25,6 @@ export class UpdateUserDto {
 
   @ApiProperty({ description: 'Whether the user is deleted', example: false, required: false })
   @IsOptional()
-  // @IsBoolean()
+  @IsBoolean()
   isDeleted?: boolean;
 }

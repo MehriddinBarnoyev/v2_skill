@@ -6,6 +6,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+  addFriend(arg0: string, arg1: string) {
+      throw new Error('Method not implemented.');
+  }
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(dto: { email: string; username: string; password: string }) {
@@ -26,24 +29,49 @@ export class UsersService {
     return this.userModel.findOne({ username, isDeleted: false });
   }
 
-  async update(id: string | Types.ObjectId, dto: UpdateUserDto, profilePicture?: string, certificates: string[] = []) {
+  async update(id: string | Types.ObjectId, dto: UpdateUserDto) {
     const user = await this.userModel.findOne({ _id: id, isDeleted: false });
     if (!user) throw new NotFoundException('User not found or deleted');
 
-    const updateData: Partial<UpdateUserDto & { profile_picture?: string; certificates?: string[] }> = {};
+    const updateData: Partial<UpdateUserDto> = {};
     if (dto.username !== undefined) updateData.username = dto.username;
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.skills !== undefined) updateData.skills = dto.skills;
     if (dto.education !== undefined) updateData.education = dto.education;
     if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted;
-    if (profilePicture !== undefined) updateData.profile_picture = profilePicture;
-    if (certificates.length > 0) updateData.certificates = [...(user.certificates || []), ...certificates];
 
     return this.userModel.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
   }
 
+  async updateProfilePicture(id: string | Types.ObjectId, profilePictureUrl: string) {
+    const user = await this.userModel.findOne({ _id: id, isDeleted: false });
+    if (!user) throw new NotFoundException('User not found or deleted');
+
+    console.log('Updating profile picture for user:', id.toString(), 'with URL:', profilePictureUrl);
+    console.log('Type of profilePictureUrl:', typeof profilePictureUrl, 'Value:', profilePictureUrl);
+
+    // Ensure profilePictureUrl is a string
+    const url = String(profilePictureUrl);
+
+    return this.userModel
+      .findByIdAndUpdate(id, { profile_picture: url }, { new: true })
+      .select('-password');
+  }
+
+  async updateCertificates(id: string | Types.ObjectId, certificateUrls: string[]) {
+    const user = await this.userModel.findOne({ _id: id, isDeleted: false });
+    if (!user) throw new NotFoundException('User not found or deleted');
+
+    const updatedCertificates = [...(user.certificates || []), ...certificateUrls];
+    return this.userModel
+      .findByIdAndUpdate(id, { certificates: updatedCertificates }, { new: true })
+      .select('-password');
+  }
+
   async findManyByIds(ids: (string | Types.ObjectId)[]) {
-    return this.userModel.find({ _id: { $in: ids }, isDeleted: false }).select('username name profile_picture');
+    return this.userModel
+      .find({ _id: { $in: ids }, isDeleted: false })
+      .select('username name profile_picture');
   }
 
   async search(query: { skill?: string; username?: string; name?: string; education?: string }) {

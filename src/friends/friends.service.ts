@@ -28,6 +28,8 @@ export class FriendsService {
         });
         if (existingRequest) throw new BadRequestException('Friend request already sent');
 
+        console.log('Creating friend request from sender:', sender._id.toString(), 'to receiver:', receiverId);
+
         const newRequest = await this.friendRequestModel.create({
             sender: sender._id,
             receiver: receiver._id,
@@ -37,55 +39,92 @@ export class FriendsService {
             status: 'pending',
         }) as FriendRequest;
 
+        console.log('Created friend request:', newRequest);
+
         return newRequest;
     }
 
-    // async acceptRequest(receiver: UserDocument, requestId: string) {
-    //     if (!receiver._id) throw new BadRequestException('Invalid receiver');
-    //     if (!Types.ObjectId.isValid(requestId)) {
-    //         console.log('Invalid requestId format:', requestId);
-    //         throw new BadRequestException('Invalid request ID');
-    //     }
+    async respondToRequest(user: UserDocument, requestId: string, action: 'accept' | 'reject') {
+        if (!user._id) throw new BadRequestException('Invalid user');
 
-    //     const request = await this.friendRequestModel.findOne({
-    //         _id: new Types.ObjectId(requestId),
-    //         receiver: receiver._id,
-    //         status: 'pending',
-    //     });
+        console.log('Responding to friend request:', {
+            requestId,
+            receiverId: user._id.toString(),
+            action,
+        });
 
-    //     if (!request) {
-    //         console.log('Friend request not found for:', {
-    //             requestId,
-    //             receiverId: receiver._id.toString(),
-    //             status: 'pending',
-    //         });
-    //         throw new NotFoundException('Friend request not found or not pending');
-    //     }
+        // Ensure requestId is a valid ObjectId
+        if (!Types.ObjectId.isValid(requestId)) {
+            throw new BadRequestException('Invalid friend request ID');
+        }
 
-    //     request.status = 'accepted';
-    //     await request.save();
+        const friendRequest = await this.friendRequestModel.findOne({
+            _id: new Types.ObjectId(requestId),
+            receiver: user._id,
+            status: 'pending',
+        });
 
-    //     await this.usersService.update(receiver._id.toString(), {
-    //         friends: [...(receiver.friends || []), request.sender.toString()],
-    //     });
+        // Log all pending requests for the user to debug
+        const allPendingRequests = await this.friendRequestModel.find({
+            receiver: user._id,
+            status: 'pending',
+        }).select('_id receiver status');
+        console.log('All pending requests for user:', user._id.toString(), allPendingRequests);
 
-    //     const sender = await this.usersService.findById(request.sender) || 'fdbsnk93';
-    //     if (!sender) {
-    //         console.log('Sender not found for ID:', request.sender.toString());
-    //         throw new NotFoundException('Sender not found');
-    //     }
+        console.log('Found friend request:', friendRequest);
 
-    //     console.log('Friend request accepted:', {
-    //         requestId,
-    //         senderId: request.sender.toString(),
-    //         receiverId: receiver._id.toString(),
-    //     });
+        // Debug: Check if the request exists at all
+        const requestExists = await this.friendRequestModel.findById(requestId);
+        console.log('Request exists check:', requestExists);
 
-    //     await this.usersService.update(sender._id as string, {
-    //         friends: [...(sender.friends || []), receiver._id.toString()],
-    //     });
-    //     return { message: 'Friend request accepted' };
-    // }
+        if (!friendRequest) {
+            if (requestExists && requestExists.sender.toString() === user._id.toString()) {
+                // Allow sender to cancel a pending request
+                if (requestExists.status === 'pending' && action === 'reject') {
+                    requestExists.status = 'canceled';
+                    await requestExists.save();
+                    console.log('Canceled friend request by sender:', requestExists);
+                    return {
+                        message: 'Friend request canceled successfully',
+                        request: requestExists
+                    };
+                }
+                throw new NotFoundException('You are the sender and cannot accept this request');
+            }
+            const errorMessage = requestExists
+                ? 'Friend request found but you are not the receiver or it is not pending'
+                : 'Friend request not found';
+            throw new NotFoundException(errorMessage);
+        }
+
+        friendRequest.status = action === 'accept' ? 'accepted' : 'rejected';
+        await friendRequest.save();
+
+        console.log('Updated friend request:', friendRequest);
+
+        if (action === 'accept') {
+            await this.usersService.addFriend(user._id.toString(), friendRequest.sender.toString());
+            await this.usersService.addFriend(friendRequest.sender.toString(), user._id.toString());
+        }
+
+        return {
+            message: `Friend request ${action}ed successfully`,
+            request: friendRequest
+        };
+    }
+
+    async addFriend(userId: string, friendId: string) {
+        const user = await this.usersService.findById(userId);
+        if (!user) throw new NotFoundException('User not found');
+
+        // Add friend to user's friends array if not already present
+        if (!user.friends.map(id => id.toString()).includes(friendId)) {
+            user.friends.push(new Types.ObjectId(friendId));
+            await user.save();
+        }
+
+        return user;
+    }
 
     async getFriendsAndRequests(user: UserDocument) {
         if (!user._id) throw new BadRequestException('Invalid user');
@@ -94,6 +133,7 @@ export class FriendsService {
         const pendingRequests = await this.friendRequestModel
             .find({ receiver: user._id, status: 'pending' })
             .select('sender senderUsername senderProfilePicture sendDate');
+        console.log('Pending requests for user:', user._id.toString(), pendingRequests);
         return { friends: friendDetails, pendingRequests };
     }
 }

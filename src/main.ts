@@ -1,23 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
-
+import * as dotenv from 'dotenv';
+import { configureCloudinary } from 'cloudinary.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  dotenv.config();
+  configureCloudinary();
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads/',
-  });
+  const app = await NestFactory.create(AppModule);
 
-  // Swagger configuration
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Skill Exchange API')
-    .setDescription('API documentation for the Skill Exchange backend MVP')
+    .setDescription('API for skill exchange platform')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

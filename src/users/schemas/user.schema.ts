@@ -4,7 +4,6 @@ import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-
 @Schema({ timestamps: true })
 export class User extends Document {
   @ApiProperty({ description: 'Email of the user', example: 'user@example.com' })
