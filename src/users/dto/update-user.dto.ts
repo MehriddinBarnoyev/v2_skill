@@ -1,30 +1,29 @@
-import { IsOptional, IsString, IsBoolean, IsArray } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class UpdateUserDto {
-  @ApiProperty({ description: 'Username of the user', example: 'user123', required: false })
   @IsOptional()
   @IsString()
   username?: string;
 
-  @ApiProperty({ description: 'Name of the user', example: 'John Doe', required: false })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiProperty({ description: 'Array of skills', type: [String], example: ['JavaScript', 'Python'], required: false })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
+  @ArrayNotEmpty({ message: 'Skills cannot be an empty array' })
   skills?: string[];
 
-  @ApiProperty({ description: 'Education of the user', example: 'Computer Science', required: false })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty({ message: 'Education cannot be an empty array' })
+  education?: string[];
+
+  @IsOptional()
+  @IsArray()
+  certificates?: string[];
+
   @IsOptional()
   @IsString()
-  education?: string;
-
-  @ApiProperty({ description: 'Whether the user is deleted', example: false, required: false })
-  @IsOptional()
-  @IsBoolean()
-  isDeleted?: boolean;
+  isDeleted?: string; // Note: This should ideally be a boolean, adjust based on your needs
 }

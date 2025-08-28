@@ -6,9 +6,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  addFriend(arg0: string, arg1: string) {
-      throw new Error('Method not implemented.');
-  }
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(dto: { email: string; username: string; password: string }) {
@@ -37,10 +34,11 @@ export class UsersService {
     if (dto.username !== undefined) updateData.username = dto.username;
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.skills !== undefined) updateData.skills = dto.skills;
-    if (dto.education !== undefined) updateData.education = dto.education;
-    if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted;
+    if (dto.education !== undefined) updateData.education = dto.education; // Handles array
+    if (dto.certificates !== undefined) updateData.certificates = dto.certificates;
+    if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted; // Keep as string since DTO expects string
 
-    return this.userModel.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
+    return this.userModel.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
   }
 
   async updateProfilePicture(id: string | Types.ObjectId, profilePictureUrl: string) {
@@ -89,5 +87,21 @@ export class UsersService {
       conditions.education = { $in: [new RegExp(query.education, 'i')] };
     }
     return this.userModel.find(conditions).select('-password');
+  }
+
+  async addFriend(userId: string, friendId: string) {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    if (!user.friends?.map(id => id.toString()).includes(friendId)) {
+      if (!user.friends) user.friends = [];
+      user.friends.push(new Types.ObjectId(friendId));
+      await user.save();
+      console.log('Added friend:', friendId, 'to user:', userId);
+    } else {
+      console.log('Friend:', friendId, 'already exists for user:', userId);
+    }
+
+    return user;
   }
 }

@@ -92,7 +92,7 @@ export class FriendsService {
                 throw new NotFoundException('You are the sender and cannot accept this request');
             }
             const errorMessage = requestExists
-                ? 'Friend request found but you are not the receiver or it is not pending'
+                ? `Friend request found but its status is '${requestExists.status}' and cannot be ${action}ed`
                 : 'Friend request not found';
             throw new NotFoundException(errorMessage);
         }
@@ -113,19 +113,6 @@ export class FriendsService {
         };
     }
 
-    async addFriend(userId: string, friendId: string) {
-        const user = await this.usersService.findById(userId);
-        if (!user) throw new NotFoundException('User not found');
-
-        // Add friend to user's friends array if not already present
-        if (!user.friends.map(id => id.toString()).includes(friendId)) {
-            user.friends.push(new Types.ObjectId(friendId));
-            await user.save();
-        }
-
-        return user;
-    }
-
     async getFriendsAndRequests(user: UserDocument) {
         if (!user._id) throw new BadRequestException('Invalid user');
         const friends = (await this.usersService.findById(user._id as string)).friends || [];
@@ -133,7 +120,7 @@ export class FriendsService {
         const pendingRequests = await this.friendRequestModel
             .find({ receiver: user._id, status: 'pending' })
             .select('sender senderUsername senderProfilePicture sendDate');
-        console.log('Pending requests for user:', user._id.toString(), pendingRequests);
+        console.log('Pending requests query for user:', user._id.toString(), 'result:', pendingRequests);
         return { friends: friendDetails, pendingRequests };
     }
 }

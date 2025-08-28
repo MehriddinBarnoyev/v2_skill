@@ -19,7 +19,7 @@ export class SkillsController {
     @ApiResponse({ status: 201, description: 'Skill added' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     create(@GetUser() user: User, @Body() dto: CreateSkillDto) {
-        return this.skillsService.create(user.id.toString(), dto);
+        return this.skillsService.create(user._id, dto);
     }
 
     @Get()
@@ -29,7 +29,7 @@ export class SkillsController {
     @ApiResponse({ status: 200, description: 'List of skills' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     findAll(@GetUser() user: User) {
-        return this.skillsService.findByUser(user.id.toString());
+        return this.skillsService.findByUser(user._id.toString());
     }
 
     @Patch(':id')
@@ -42,7 +42,7 @@ export class SkillsController {
     @ApiResponse({ status: 403, description: 'Not authorized' })
     @ApiResponse({ status: 404, description: 'Skill not found' })
     update(@Param('id') id: string, @Body() dto: UpdateSkillDto, @GetUser() user: User) {
-        return this.skillsService.update(id, dto, user.id.toString());
+        return this.skillsService.update(id, dto, user._id.toString());
     }
 
     @Delete(':id')
@@ -55,7 +55,7 @@ export class SkillsController {
     @ApiResponse({ status: 403, description: 'Not authorized' })
     @ApiResponse({ status: 404, description: 'Skill not found' })
     remove(@Param('id') id: string, @GetUser() user: User) {
-        return this.skillsService.delete(id, user.id.toString());
+        return this.skillsService.delete(id, user._id.toString());
     }
 
     @Get('user/:userId')

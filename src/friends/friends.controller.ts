@@ -2,7 +2,7 @@ import { Controller, Post, Get, Param, UseGuards, Body } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GetUser } from '../auth/get-user.decorator';
-import { User } from '../users/schemas/user.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RespondFriendRequestDto } from './dto/respond-friend.dto';
 
@@ -21,7 +21,7 @@ export class FriendsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Receiver not found or deleted' })
   sendRequest(@GetUser() user: User, @Param('userId') userId: string) {
-    return this.friendsService.sendRequest(user, userId);
+    return this.friendsService.sendRequest(user as UserDocument, userId);
   }
   @Post('respond/:requestId')
   @UseGuards(JwtAuthGuard)
@@ -38,7 +38,7 @@ export class FriendsController {
     @Body() respondDto: RespondFriendRequestDto
   ) {
     console.log('POST /friends/respond/:requestId called with requestId:', requestId, 'action:', respondDto.action, 'by user:', user._id as string);
-    return this.friendsService.respondToRequest(user, requestId, respondDto.action);
+    return this.friendsService.respondToRequest(user as UserDocument, requestId, respondDto.action);
   }
 
   @Get('me')
@@ -48,6 +48,6 @@ export class FriendsController {
   @ApiResponse({ status: 200, description: 'List of friends and pending requests' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getFriendsAndRequests(@GetUser() user: User) {
-    return this.friendsService.getFriendsAndRequests(user);
+    return this.friendsService.getFriendsAndRequests(user as UserDocument);
   }
 }
