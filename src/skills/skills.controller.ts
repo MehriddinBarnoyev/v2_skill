@@ -68,4 +68,12 @@ export class SkillsController {
     getUserSkills(@Param('userId') userId: string) {
         return this.skillsService.getUserSkills(userId);
     }
+
+    @Get('all')
+    @ApiOperation({ summary: 'Get all skills of all users' })
+    @ApiResponse({ status: 200, description: 'List of all skills' })
+    getAllSkills() {
+        return this.skillsService.getAllUsersSkills();
+    }
+
 }

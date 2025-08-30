@@ -7,7 +7,7 @@ import { UpdateSkillDto } from './dto/update-skill.dto';
 
 @Injectable()
 export class SkillsService {
-  constructor(@InjectModel(Skill.name) private skillModel: Model<Skill>) {}
+  constructor(@InjectModel(Skill.name) private skillModel: Model<Skill>) { }
 
   async create(userId: string, dto: CreateSkillDto) {
     return this.skillModel.create({ ...dto, user: userId });
@@ -34,5 +34,8 @@ export class SkillsService {
     if (skill.user.toString() !== userId) throw new ForbiddenException('Not authorized');
     await skill.deleteOne();
     return { message: 'Skill deleted' };
+  }
+  async getAllUsersSkills() {
+    return this.skillModel.find();
   }
 }

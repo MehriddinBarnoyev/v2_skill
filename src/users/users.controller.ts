@@ -25,7 +25,7 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User not found or deleted' })
   getMe(@GetUser() user: User) {
-    return this.usersService.findById(user._id as string);
+    return this.usersService.findById(user._id);
   }
 
   @Patch('me')

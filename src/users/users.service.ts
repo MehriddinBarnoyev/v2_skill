@@ -15,6 +15,7 @@ export class UsersService {
   async findById(id: string | Types.ObjectId) {
     const user = await this.userModel.findOne({ _id: id, isDeleted: false }).select('-password');
     if (!user) throw new NotFoundException('User not found or deleted');
+    console.log('Raw user data from DB:', user.toObject());
     return user;
   }
 
@@ -34,10 +35,11 @@ export class UsersService {
     if (dto.username !== undefined) updateData.username = dto.username;
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.skills !== undefined) updateData.skills = dto.skills;
-    if (dto.education !== undefined) updateData.education = dto.education; // Handles array
+    if (dto.education !== undefined) updateData.education = dto.education;
     if (dto.certificates !== undefined) updateData.certificates = dto.certificates;
-    if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted; // Keep as string since DTO expects string
+    if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted;
 
+    console.log('Updating user with data:', updateData);
     return this.userModel.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
   }
 
@@ -48,7 +50,6 @@ export class UsersService {
     console.log('Updating profile picture for user:', id.toString(), 'with URL:', profilePictureUrl);
     console.log('Type of profilePictureUrl:', typeof profilePictureUrl, 'Value:', profilePictureUrl);
 
-    // Ensure profilePictureUrl is a string
     const url = String(profilePictureUrl);
 
     return this.userModel
