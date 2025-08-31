@@ -120,7 +120,7 @@ export class FriendsService {
         const pendingRequests = await this.friendRequestModel
             .find({ receiver: user._id, status: 'pending' })
             .select('sender senderUsername senderProfilePicture sendDate');
-        console.log('Pending requests query for user:', user._id.toString(), 'result:', pendingRequests);
+        // console.log('Pending requests query for user:', user._id.toString(), 'result:', pendingRequests);
         return { friends: friendDetails, pendingRequests };
     }
 }

@@ -15,7 +15,7 @@ export class UsersService {
   async findById(id: string | Types.ObjectId) {
     const user = await this.userModel.findOne({ _id: id, isDeleted: false }).select('-password');
     if (!user) throw new NotFoundException('User not found or deleted');
-    console.log('Raw user data from DB:', user.toObject());
+    // console.log('Raw user data from DB:', user.toObject());
     return user;
   }
 
