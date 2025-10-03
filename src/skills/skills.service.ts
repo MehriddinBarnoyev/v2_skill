@@ -36,6 +36,6 @@ export class SkillsService {
     return { message: 'Skill deleted' };
   }
   async getAllUsersSkills() {
-    return this.skillModel.find().populate('user', 'username fullName profile_picture _id').exec();
+    return this.skillModel.find();
   }
 }

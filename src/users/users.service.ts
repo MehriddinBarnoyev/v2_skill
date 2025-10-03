@@ -39,7 +39,7 @@ export class UsersService {
     if (dto.certificates !== undefined) updateData.certificates = dto.certificates;
     if (dto.isDeleted !== undefined) updateData.isDeleted = dto.isDeleted;
 
-    // console.log('Updating user with data:', updateData);
+    console.log('Updating user with data:', updateData);
     return this.userModel.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
   }
 

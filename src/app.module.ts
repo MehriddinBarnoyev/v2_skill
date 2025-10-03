@@ -9,7 +9,9 @@ import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb+srv://mbarnoyev46:6vf7Bmh3qQRriadR@skillexchange.wjkdnrl.mongodb.net/?retryWrites=true&w=majority&appName=skillExchange'),
+    MongooseModule.forRoot(
+      'mongodb+srv://mbarnoyev46:ZK2ilGLF14wjqq31@skillexchange.wjkdnrl.mongodb.net/?retryWrites=true&w=majority&appName=skillExchange',
+    ),
     AuthModule,
     UsersModule,
     SkillsModule,

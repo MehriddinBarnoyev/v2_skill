@@ -11,9 +11,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  // ✅ cors paketini ishlatish
   app.use(cors());
 
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Skill Exchange API')
     .setDescription('API for skill exchange platform')

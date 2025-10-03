@@ -18,8 +18,8 @@ export class FriendsService {
             throw new BadRequestException('Cannot send friend request to yourself');
         }
 
-    const receiver = await this.usersService.findById(receiverId);
-    if (!receiver) throw new NotFoundException('Receiver not found or deleted');
+        const receiver = await this.usersService.findById(receiverId);
+        if (!receiver) throw new NotFoundException('Receiver not found or deleted');
 
         const existingRequest = await this.friendRequestModel.findOne({
             sender: sender._id,
@@ -120,6 +120,7 @@ export class FriendsService {
         const pendingRequests = await this.friendRequestModel
             .find({ receiver: user._id, status: 'pending' })
             .select('sender senderUsername senderProfilePicture sendDate');
+        // console.log('Pending requests query for user:', user._id.toString(), 'result:', pendingRequests);
         return { friends: friendDetails, pendingRequests };
     }
 }
