@@ -17,7 +17,7 @@ async function bootstrap() {
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Skill Exchange API')
-    .setDescription('API for skill exchange platform')
+    .setDescription('API for skill exchange platform for start up')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -25,6 +25,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(4000);
+  const port = process.env.PORT || 5850;
+
+  await app.listen(port);
 }
 bootstrap();
