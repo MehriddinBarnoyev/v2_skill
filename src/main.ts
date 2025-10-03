@@ -16,7 +16,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Skill Exchange API')
-    .setDescription('API for skill exchange platform')
+    .setDescription('API for skill exchange platform for start up')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
